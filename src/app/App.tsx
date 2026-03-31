@@ -1,13 +1,161 @@
 import { useEffect, useRef, useState } from 'react';
 import { Globe } from './components/Globe';
 
+function IntroLoader({ isExiting }: { isExiting: boolean }) {
+  const easing = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
+  return (
+    <div
+      className="absolute inset-0 z-30 flex items-center justify-center overflow-hidden"
+      style={{
+        opacity: isExiting ? 0 : 1,
+        transition: `opacity 0.9s ${easing}`,
+        backdropFilter: isExiting ? 'blur(0px)' : 'blur(18px)',
+        background: isExiting
+          ? 'radial-gradient(circle at center, rgba(2,6,23,0) 0%, rgba(2,6,23,0.08) 45%, rgba(2,6,23,0.2) 100%)'
+          : 'radial-gradient(circle at center, rgba(2,6,23,0.18) 0%, rgba(2,6,23,0.42) 34%, rgba(2,6,23,0.84) 100%)',
+      }}
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          background: isExiting
+            ? 'radial-gradient(circle at center, rgba(34,211,238,0.06) 0%, transparent 34%, rgba(1,4,13,0.12) 76%, rgba(1,4,13,0.26) 100%)'
+            : 'radial-gradient(circle at center, rgba(34,211,238,0.14) 0%, transparent 26%, rgba(1,4,13,0.44) 64%, rgba(1,4,13,0.78) 100%)',
+        }}
+      />
+
+      <div
+        className="absolute"
+        style={{
+          width: 'min(80vw, 880px)',
+          height: 'min(80vw, 880px)',
+          borderRadius: '50%',
+          background:
+          'radial-gradient(circle, rgba(34,211,238,0.08) 0%, rgba(34,211,238,0.03) 28%, transparent 62%)',
+          filter: 'blur(8px)',
+          animation: 'loaderPulse 3.2s ease-in-out infinite',
+        }}
+      />
+
+      <div
+        className="absolute"
+        style={{
+          width: 'min(42vw, 420px)',
+          height: 'min(42vw, 420px)',
+          borderRadius: '50%',
+          border: '1px solid rgba(125, 211, 252, 0.14)',
+          opacity: isExiting ? 0.35 : 0.8,
+          transform: isExiting ? 'scale(1.08)' : 'scale(0.9)',
+          transition: `opacity 0.9s ${easing}, transform 1.2s ${easing}`,
+          animation: 'loaderSpin 16s linear infinite',
+        }}
+      />
+
+      <div
+        className="relative z-10 flex flex-col items-center justify-center px-6"
+        style={{ width: 'min(68vw, 520px)', animation: 'loaderRise 1.2s ease-out both' }}
+      >
+        <div
+          className="relative"
+          style={{
+            width: 'min(44vw, 420px)',
+            height: 'min(44vw, 420px)',
+            maxWidth: 420,
+            maxHeight: 420,
+          }}
+        >
+          <div
+            className="absolute left-1/2 top-1/2 rounded-full"
+            style={{
+              width: 14,
+              height: 14,
+              marginLeft: -7,
+              marginTop: -7,
+              background: 'radial-gradient(circle, rgba(224,242,254,1) 0%, rgba(34,211,238,0.9) 45%, rgba(34,211,238,0) 100%)',
+              boxShadow: '0 0 24px rgba(34, 211, 238, 0.95)',
+              animation: 'loaderCore 2.8s ease-out forwards',
+            }}
+          />
+
+          <div
+            className="absolute inset-[12%] rounded-full"
+            style={{
+              border: '1px solid rgba(125, 211, 252, 0.18)',
+              opacity: 0,
+              transform: 'scale(0.8)',
+              animation: 'orbitFade 2.6s ease-out 0.4s forwards',
+            }}
+          />
+
+          <div
+            className="absolute inset-[-10%] rounded-full"
+            style={{
+              borderTop: '2px solid rgba(103, 232, 249, 0.78)',
+              borderRight: '2px solid rgba(255, 255, 255, 0.06)',
+              borderBottom: '2px solid rgba(56, 189, 248, 0.15)',
+              borderLeft: '2px solid rgba(14, 165, 233, 0.28)',
+              boxShadow: '0 0 28px rgba(34, 211, 238, 0.18)',
+              opacity: 0,
+              animation: 'orbitFade 2.1s ease-out 1.1s forwards, loaderSpin 7s linear 1.1s infinite',
+            }}
+          />
+        </div>
+
+        <div
+          className="mt-8 text-center"
+          style={{ animation: 'loaderRise 1s ease-out 0.75s both' }}
+        >
+          <p
+            className="uppercase"
+            style={{
+              color: 'rgba(125, 211, 252, 0.84)',
+              letterSpacing: '0.45em',
+              fontSize: '0.68rem',
+              marginBottom: '0.85rem',
+            }}
+          >
+            Taiwan to World
+          </p>
+          <p
+            style={{
+              color: 'rgba(226, 232, 240, 0.88)',
+              fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
+              letterSpacing: '0.28em',
+            }}
+          >
+            LOADING
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoaderExiting, setIsLoaderExiting] = useState(false);
   const [scrollCount, setScrollCount] = useState(0);
   const [phase, setPhase] = useState<'globe' | 'text'>('globe');
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isDebouncing = useRef(false);
   const MAX_SCROLLS = 3;
+
+  useEffect(() => {
+    const exitTimer = setTimeout(() => {
+      setIsLoaderExiting(true);
+    }, 2200);
+
+    const removeTimer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(removeTimer);
+    };
+  }, []);
 
   // Sync phase with scrollCount
   useEffect(() => {
@@ -47,17 +195,6 @@ export default function App() {
   const easing = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
   // Globe transform: zoom out when leaving, zoom in from close when returning
-  const globeVisible = phase === 'globe';
-  const globeScale = globeVisible
-    ? 'scale(1)'
-    : direction === 'forward'
-      ? 'scale(1.1)'   // leaving forward → shrink away
-      : 'scale(1.1)';  // just left, already transformed
-
-  // When returning (backward), we want globe to come from slightly small
-  // We achieve this by setting the "hidden" state to scale(0.92) when direction=backward
-  const globeHiddenScale = direction === 'backward' ? 'scale(0.92)' : 'scale(1.1)';
-
   // Text transform: slides up when entering, slides down when leaving
   const textVisible = phase === 'text';
   const textTranslate = textVisible
@@ -80,6 +217,8 @@ export default function App() {
         `,
       }}
     >
+      {isLoading && <IntroLoader isExiting={isLoaderExiting} />}
+
       {/* Scroll progress dots */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
         {Array.from({ length: MAX_SCROLLS }).map((_, i) => (
@@ -102,7 +241,13 @@ export default function App() {
       {/* Globe layer — canvas stays mounted always; only globe objects fade internally */}
       <div
         className="absolute inset-0"
-        style={{ pointerEvents: phase === 'globe' ? 'auto' : 'none' }}
+        style={{
+          pointerEvents: isLoading ? 'none' : phase === 'globe' ? 'auto' : 'none',
+          opacity: isLoading ? (isLoaderExiting ? 1 : 0.72) : 1,
+          transform: isLoading ? (isLoaderExiting ? 'scale(1)' : 'scale(0.82)') : 'scale(1)',
+          filter: isLoading ? (isLoaderExiting ? 'blur(0px) brightness(1)' : 'blur(10px) brightness(0.72)') : 'none',
+          transition: 'opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1), transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), filter 1.4s cubic-bezier(0.22, 1, 0.36, 1)',
+        }}
       >
         <Globe globeVisible={phase === 'globe'} />
       </div>

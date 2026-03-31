@@ -292,3 +292,13 @@
     filter: blur(0);
   }
 }
+
+@keyframes photoSphereSpin {
+  from {
+    transform: rotateX(-12deg) rotateY(0deg);
+  }
+
+  to {
+    transform: rotateX(-12deg) rotateY(360deg);
+  }
+}

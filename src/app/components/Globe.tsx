@@ -34,7 +34,7 @@ export function Globe({ globeVisible = true }: GlobeProps) {
       alpha: true 
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     containerRef.current.appendChild(renderer.domElement);
 
     // Create wireframe sphere (globe) with only x-axis grid lines (latitude lines)
